@@ -1,4 +1,4 @@
-# golem-ci
+# Golem CI
 Decentralized CI pipline on top of Golem.network.
 [![Golem CI](assets/cover.png)](https://github.com/hhio618/golem-ci "Golem CI")
 
