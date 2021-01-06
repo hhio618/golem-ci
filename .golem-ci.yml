@@ -1,0 +1,29 @@
+kind: pipeline
+type: golem
+name: linux-amd6
+
+platform:
+  arch: amd64
+  os: linux
+
+steps:
+- name: test
+  image: 234r532rbkfh98y89y
+  commands:
+  - go test ./...
+  
+- name: build
+  image: 234r532rbkfh98y89y
+  commands:
+  - sh scripts/build.sh
+  environment:
+    GOARCH: amd64
+    GOOS: linux
+
+- name: publish
+  image: # ding hash
+  commands:
+  environment:
+    REGISTRY: ${DOCKER_REGISTRY}
+    USER: ${DOCKER_USERNAME}
+    PASSWORD: ${DOCKER_PASSWORD}
