@@ -11,8 +11,8 @@ from typing import List
 
 import yapapi
 from yapapi.log import enable_default_logger, log_summary, log_event_repr  # noqa
-from yapapi.runner import Engine, Task, vm
-from yapapi.runner.ctx import WorkContext
+from yapapi.package import vm
+from yapapi import Executor, Task, WorkContext
 from datetime import timedelta
 from .utils import get_temp_log_file
 import logging
@@ -38,10 +38,10 @@ class Pipeline:
                 tar_fname: tar file to be sent to golem vm.
                 pipeline_mode: the excutation mode of pipeline, could be one of PipelineMode.QUEUE|PipelineMode.PARALLEL
         """
-         self.spec = spec
-         self.tar_fname = tar_fname
-         self.step = 0
-         self.state = {step_name:{"state": StepState.PENDING, "log": None} for step['name'] in self.spec['steps']}
+        self.spec = spec
+        self.tar_fname = tar_fname
+        self.step = 0
+        self.state = {step_name:{"state": StepState.PENDING, "log": None} for step['name'] in self.spec['steps']}
     
     def get_state():
         """ return the current state of the pipeline """
@@ -50,7 +50,7 @@ class Pipeline:
     def start(self):
         """ Run through steps in parallel or one by one based on the pipeline_mode param. """
         steps = self.spec['steps']
-        if self.pipeline_mode == "queue":
+        if self.pipeline_mode == PipelineMode.QUEUE:
             logger.info("start excuting steps in queue mode")
             while True:
                 if self.state[self.step] in [StepState.SUCCESS, StepState.ERROR]:
@@ -61,7 +61,7 @@ class Pipeline:
                 else:
                     logger.info(f"waiting for step to be completed: {steps[self.step]}")
                 time.sleep(30)
-        elif self.pipeline_mode == "parallel"
+        elif self.pipeline_mode == PipelineMode.PARALLEL:
             logger.info("start excuting steps in parallel mode")
             self.execute(steps)
 
@@ -117,15 +117,15 @@ class Pipeline:
         # By passing `event_emitter=log_summary()` we enable summary logging.
         # See the documentation of the `yapapi.log` module on how to set
         # the level of detail and format of the logged information.
-        async with Engine(
+        async with Executor(
             package=package,
             max_workers=1,
             budget=budget,
             timeout=timeout,
             subnet_tag=subnet_tag,
             event_emitter=log_summary(),
-        ) as engine:
-            async for task in engine.map(worker, [Task(data=step)]):
+        ) as executer:
+            async for task in executer.submit(worker, [Task(data=step)]):
                 print(f"\033[36;1mStep completed: {task}\033[0m")
                 # grab the logs
                 self.state[step_name]["log"] = task.output

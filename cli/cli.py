@@ -4,7 +4,7 @@ from .parser import load_spec_file
 from .pipeline import Pipeline
 
 @click.group()
-def cli():
+def base():
     pass
 
 @click.command()
@@ -40,5 +40,5 @@ def up(tail, context_dir):
 
 
 
-cli.add_command(set_api_key)
-cli.add_command(up)
+base.add_command(set_api_key)
+base.add_command(up)

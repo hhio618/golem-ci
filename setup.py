@@ -2,7 +2,7 @@ from distutils.core import setup
 
 import setuptools
 
-from golem_ci import VERSION
+from cli import VERSION
 
 setup(
     name='golem_ci',
@@ -11,15 +11,10 @@ setup(
     author='hhio618',
     install_requires=["click>=7.0",
                       "appdirs",
-                      "retrying",
-                      "pyOpenSSL",
-                      "requests[security]",
-                      "requests-toolbelt",
-                      "beautifultable==0.8.0",
                       "pytz",
                       "tzlocal",
                       "pyyaml>=3.13se",
-                      "websocket-client"],
+                      "yapapi"],
     author_email='hhio618@gmail.com',
     url='https://github.com/hhio618/golem-ci',
     keywords=['Golem', 'CI'],
@@ -30,7 +25,7 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        golem_ci=golem_ci.cli:base
+        golem_ci=cli.cli:base
     ''',
 
 )
