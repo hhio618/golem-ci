@@ -13,6 +13,7 @@ import yapapi
 from yapapi.log import enable_default_logger, log_summary, log_event_repr  # noqa
 from yapapi.package import vm
 from yapapi import Executor, Task, WorkContext
+from yapapi.rest.activity import BatchTimeoutError
 from datetime import timedelta
 from .utils import get_temp_log_file
 import logging
@@ -54,8 +55,11 @@ class Pipeline:
         steps = self.spec['steps']
         if self.pipeline_mode == PipelineMode.QUEUE:
             logger.info("start excuting steps in queue mode")
+            # first step.
+            self.execute([steps[0]])
             while True:
-                if self.state[self.step] in [StepState.SUCCESS, StepState.ERROR]:
+                print(steps[self.step]['name'])
+                if self.state[steps[self.step]['name']] in [StepState.SUCCESS, StepState.ERROR]:
                     # step up
                     self.step += 1
                     logger.info(f"executing next step: {steps[self.step]}")
@@ -92,7 +96,8 @@ class Pipeline:
 
 
 
-    async def run_step(self, step, timeout=timedelta(minutes=10), budget=100.0, subnet_tag="devnet-alpha.2" ):
+    async def run_step(self, step, timeout=timedelta(minutes=10), budget=100, subnet_tag="community.3" ):
+        print(step)
         package = await vm.repo(
             image_hash=step["image"],
             min_mem_gib=1,
@@ -103,17 +108,27 @@ class Pipeline:
                 step_name = step['name']
                 commands = step['commands']
                 envs = step['environment']
+
+                print(f"\033[36;1mSending the context tar file\033[0m")
                 ctx.send_file(tar_fname, "/golem/work/context.tar")
                 # TODO: set envs.
                 logs = []
                 for idx, command in enumerate(commands):
-                    ctx.run("{command} > /golem/output/cmd.log 2>&1")
                     print(f"\033[36;1mRunning {command}\033[0m")
+                    ctx.run(f"bash -c \"{command}\" > /golem/output/cmd.log 2>&1")
                     log_fname = get_temp_log_file(step_name)
                     ctx.download_file(f"/golem/output/cmd_{idx}.log", log_fname)
                 print(f"\033[36;1mNo more commands to run!\033[0m")
-                yield ctx.commit()
-                task.accept_task(result=log_fname)
+                try:
+                    yield ctx.commit(timeout=timedelta(minutes=30))
+                    task.accept_result(result=log_fname)
+                except BatchTimeoutError:
+                    print(
+                        f"{utils.TEXT_COLOR_RED}"
+                        f"Task timed out: {task}, time: {task.running_time}"
+                        f"{utils.TEXT_COLOR_DEFAULT}"
+                    )
+                    raise
             ctx.log("no more task to run")
 
         # By passing `event_emitter=log_summary()` we enable summary logging.
@@ -125,7 +140,7 @@ class Pipeline:
             budget=budget,
             timeout=timeout,
             subnet_tag=subnet_tag,
-            event_emitter=log_summary(),
+            event_consumer=log_summary(log_event_repr),
         ) as executer:
             async for task in executer.submit(worker, [Task(data=step)]):
                 print(f"\033[36;1mStep completed: {task}\033[0m")

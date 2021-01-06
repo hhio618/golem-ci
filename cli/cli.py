@@ -27,7 +27,7 @@ def up(tail, context_dir):
         os.environ['YAGNA_APPKEY'] = config['api_key']
     except FileNotFoundError:
         # Check if YAGNA_APPKEY exists?
-        if os.getenv('YAGNA_APPKEY') is not None:
+        if os.getenv('YAGNA_APPKEY') is None:
             print("Please set the golem api key using set_api_key command or YAGNA_APPKEY env!")
             return
     # get absoloute path from context_dir
@@ -43,6 +43,7 @@ def up(tail, context_dir):
     
     # run pipeline for each steps
     pipeline = Pipeline(spec, tar_fname)
+    pipeline.start()
 
 
 
