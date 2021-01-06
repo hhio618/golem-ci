@@ -3,8 +3,10 @@ import yaml
 
 
 def load_spec_file(context_dir):
-    if os.path.exists(context_dir, yaml):
-        with open(os.path.join(context_dir, yaml)) as spec_file:
+    spec_pathes = [os.path.join(context_dir, ".golem-ci.yml"), os.path.join(context_dir, ".golem-ci.yaml")]
+    spec_exists = [os.path.exists(path) for path in spec_pathes]
+    if False in spec_exists and True in spec_exists:
+        with open(spec_pathes[spec_exists.index(True)]) as spec_file:
             # The FullLoader parameter handles the conversion from YAML
             yaml_string = spec_file.read()
             # expand the yaml content from environment variables.
@@ -17,4 +19,5 @@ def load_spec_file(context_dir):
                 return None
             return spec
     else:
-        return None
+       print("Please either provide a .golem-ci.yml or a .golem-ci.yaml")
+       return None

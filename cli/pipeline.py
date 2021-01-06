@@ -31,7 +31,7 @@ class PipelineMode:
     PARALLEL = "parallel"
 
 class Pipeline:
-    def __init__(self, spec, tar_fname, pipeline_mode=PipelineMode.QUEUE):
+    def __init__(self, spec, tar_fname):
         """ Creates a new pipeline on top of Golem.network
             params:
                 spec: yaml spec file
@@ -41,7 +41,9 @@ class Pipeline:
         self.spec = spec
         self.tar_fname = tar_fname
         self.step = 0
-        self.state = {step_name:{"state": StepState.PENDING, "log": None} for step['name'] in self.spec['steps']}
+        self.state = {step['name']:{"state": StepState.PENDING, "log": None} for step in self.spec['steps']}
+        # Pipeline mode defaults to PipelineMode.QUEUE.
+        self.pipeline_mode = spec.get("mode", PipelineMode.QUEUE)
     
     def get_state():
         """ return the current state of the pipeline """

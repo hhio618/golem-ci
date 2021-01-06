@@ -11,7 +11,7 @@ import hashlib
 
 def make_temp_tarfile(source_dir):
     tmpdir = tempfile.gettempdir()
-    tmp_tarfile_name = os.path.join(tmpdir, os.path.basename(source_dir))
+    tmp_tarfile_name = os.path.join(tmpdir, os.path.basename(source_dir)+ ".tar")
     with tarfile.open(tmp_tarfile_name, "w:gz") as tar:
         tar.add(source_dir, arcname=os.path.basename(source_dir))
     return tmp_tarfile_name
@@ -39,7 +39,7 @@ def get_config_file():
     return os.path.join(dir, "config.json")
 
 def load_config():
-    with open(get_config_file, "r") as config_file:
+    with open(get_config_file(), "r") as config_file:
         return json.load(config_file)
 
 def save_config(configs):
