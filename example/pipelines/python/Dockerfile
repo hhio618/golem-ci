@@ -4,12 +4,7 @@ RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get autoremove -y \
     && apt-get install -y \
-        gcc \
-        build-essential \
-        wget \
-        unzip \
-        cmake \
-        python3-dev \
+        tar \
     && apt-get clean
 
 # Install Python packages

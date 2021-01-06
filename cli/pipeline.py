@@ -46,7 +46,7 @@ class Pipeline:
         # Pipeline mode defaults to PipelineMode.QUEUE.
         self.pipeline_mode = spec.get("mode", PipelineMode.QUEUE)
     
-    def get_state():
+    def get_state(self):
         """ return the current state of the pipeline """
         return self.state
 
@@ -78,7 +78,7 @@ class Pipeline:
         with open(log_fname, "r") as f:
             lines = f.readlines()
             for line in lines:
-                log.info(line)
+                logger.info(line)
              
 
     def execute(self, steps: List):
@@ -107,15 +107,15 @@ class Pipeline:
             async for task in tasks:
                 step_name = step['name']
                 commands = step['commands']
-                envs = step['environment']
-
+                # prepair envs in string form of: "k1=v1 k2=v2 ... kn=vn "
+                envs = "".join([f"{k}={v} " for k,v in step['environment']])
                 print(f"\033[36;1mSending the context tar file\033[0m")
-                ctx.send_file(tar_fname, "/golem/work/context.tar")
-                # TODO: set envs.
-                logs = []
+                ctx.send_file(self.tar_fname, "/golem/work/context.tar")
+                # run all commands one by one
                 for idx, command in enumerate(commands):
                     print(f"\033[36;1mRunning {command}\033[0m")
-                    ctx.run(f"bash -c \"{command}\" > /golem/output/cmd.log 2>&1")
+                    # set envs.
+                    ctx.run(f"sh -c \"{envs}{command}\" > /golem/output/cmd.log 2>&1")
                     log_fname = get_temp_log_file(step_name)
                     ctx.download_file(f"/golem/output/cmd_{idx}.log", log_fname)
                 print(f"\033[36;1mNo more commands to run!\033[0m")
@@ -145,5 +145,5 @@ class Pipeline:
             async for task in executer.submit(worker, [Task(data=step)]):
                 print(f"\033[36;1mStep completed: {task}\033[0m")
                 # grab the logs
-                self.state[step_name]["log"] = task.output
-                self.update_progress(step_name)
+                self.state[step['name']]["log"] = task.output
+                self.update_progress(step['name'])
