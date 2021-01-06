@@ -1,14 +1,14 @@
 # golem-deci
-Decentralized CI pipline on top of Golem.network. currently in POC state!
+Decentralized CI pipline on top of Golem.network.
 
 
 # Features
-serverless
-crossplatform
-parallel pipeline thanks to golem.network
+Serverless
+Crossplatform
+
+
 ## TODO
 Add ipfs support.
 Add frontend.
 ## Credits
 Kaniko project.
-IPFS.
