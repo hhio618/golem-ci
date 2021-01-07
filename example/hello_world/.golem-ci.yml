@@ -5,13 +5,13 @@ mode: queue
 
 steps:
 - name: lint
-  image: c4bf4f54261e469c7520bb1b7396673cd92bb418a0110525b35ce7a7
+  image: 87363066af80fa0d211a861dc6073cd969878b1251f954c6b884080a
   commands:
   - pip install -r requirements.txt
   - pylint
   
 - name: run
-  image: c4bf4f54261e469c7520bb1b7396673cd92bb418a0110525b35ce7a7
+  image: 87363066af80fa0d211a861dc6073cd969878b1251f954c6b884080a
   commands:
   - python hello.py
 

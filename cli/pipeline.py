@@ -96,7 +96,7 @@ class Pipeline:
 
 
 
-    async def run_step(self, step, timeout=timedelta(minutes=10), budget=100, subnet_tag="community.3" ):
+    async def run_step(self, step, timeout=timedelta(minutes=10), budget=10, subnet_tag="community.3" ):
         print(step)
         package = await vm.repo(
             image_hash=step["image"],
@@ -123,11 +123,7 @@ class Pipeline:
                     yield ctx.commit(timeout=timedelta(minutes=30))
                     task.accept_result(result=log_fname)
                 except BatchTimeoutError:
-                    print(
-                        f"{utils.TEXT_COLOR_RED}"
-                        f"Task timed out: {task}, time: {task.running_time}"
-                        f"{utils.TEXT_COLOR_DEFAULT}"
-                    )
+                    print(f"Task timed out: {task}, time: {task.running_time}")
                     raise
             ctx.log("no more task to run")
 

@@ -16,8 +16,8 @@ def make_temp_tarfile(source_dir):
         tar.add(source_dir, arcname=os.path.basename(source_dir))
     return tmp_tarfile_name
 
-def get_temp_log_file(step_name, command):
-    fname = hashlib.md5(f"{step_name}:{command}".encode('utf-8')).hexdigest()
+def get_temp_log_file(step_name):
+    fname = hashlib.md5(f"{step_name}".encode('utf-8')).hexdigest()
     tmpdir = tempfile.gettempdir()
     tmp_tarfile_name = os.path.join(tmpdir, f"{fname}.log")
     return tmp_tarfile_name
