@@ -7,14 +7,14 @@ import errno
 import tarfile
 import tempfile
 import hashlib
+import shutil
 
 
 def make_temp_tarfile(source_dir):
     tmpdir = tempfile.gettempdir()
-    tmp_tarfile_name = os.path.join(tmpdir, os.path.basename(source_dir)+ ".tar")
-    with tarfile.open(tmp_tarfile_name, "w:gz") as tar:
-        tar.add(source_dir, arcname=os.path.basename(source_dir))
-    return tmp_tarfile_name
+    tmp_tarfile_name = os.path.join(tmpdir, os.path.basename(source_dir))
+    shutil.make_archive(tmp_tarfile_name, 'zip', source_dir)
+    return tmp_tarfile_name + ".zip"
 
 def get_temp_log_file(step_name):
     fname = hashlib.md5(f"{step_name}".encode('utf-8')).hexdigest()

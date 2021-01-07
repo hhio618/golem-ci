@@ -3,6 +3,8 @@ FROM python:3.6
 RUN apt-get update \
     && apt-get install -y \
         tar \
+        zip \
+        unzip \
     && apt-get clean
 
 # Install Python packages

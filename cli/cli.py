@@ -17,9 +17,9 @@ def set_api_key(api_key):
 
 
 @click.command()
-@click.option('--tail', is_flag=True, help="Will print verbose messages.")
+@click.option('--verbose', is_flag=True, help="Will print verbose messages.")
 @click.argument('context_dir')
-def up(tail, context_dir):
+def up(verbose, context_dir):
     config = {}
     try:
         config = load_config()
@@ -42,7 +42,7 @@ def up(tail, context_dir):
     tar_fname = make_temp_tarfile(context_dir)
     
     # run pipeline for each steps
-    pipeline = Pipeline(spec, tar_fname)
+    pipeline = Pipeline(spec, tar_fname, verbose)
     pipeline.start()
 
 

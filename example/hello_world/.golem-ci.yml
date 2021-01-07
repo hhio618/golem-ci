@@ -4,21 +4,18 @@ name: hello-world
 mode: queue
 
 steps:
-- name: lint
-  image: 87363066af80fa0d211a861dc6073cd969878b1251f954c6b884080a
+- name: echo
+  image: 69b8f1cde4b8cf6d2ba6df3d29b4c1ac57beb16aef88e43871726cc6
   commands:
-  - pip install -r requirements.txt
-  - pylint
-  
-- name: run
-  image: 87363066af80fa0d211a861dc6073cd969878b1251f954c6b884080a
-  commands:
+# these commands not working currently!
+#  - python -m pip install pylint
+#  - python -m pylint
   - python hello.py
-
-    # - name: publish
-    #   image: # ding hash
-    #   commands:
-    #   environment:
-    #     REGISTRY: ${DOCKER_REGISTRY}
-    #     USER: ${DOCKER_USERNAME}
-    #     PASSWORD: ${DOCKER_PASSWORD}
+  
+- name: env-test
+  image: 69b8f1cde4b8cf6d2ba6df3d29b4c1ac57beb16aef88e43871726cc6
+  commands:
+  - python env.py
+  environment:
+    GOLEM_TEST1: test
+    GOLEM_TEST2: 123456
